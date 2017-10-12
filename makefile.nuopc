@@ -6,14 +6,8 @@ endif
 include         $(ESMFMKFILE)
 ESMF_INC        = $(ESMF_F90COMPILEPATHS)
 ESMF_LIB        = $(ESMF_F90LINKPATHS) $(ESMF_F90LINKRPATHS) $(ESMF_F90ESMFLINKLIBS)
-UTILINCS        = -I$(NEMSMOMDIR)/FMS -I$(NEMSMOMDIR)/MOM6 -I$(NEMSMOMDIR)/SIS2 -I. -g -O0  -traceback
-MOM             = sis2
-
-# The same script is used for other versions of MOM, such as MOM4 and MOM6
-# VERSION is a make command argument (e.g. make makefile.nuopc VERSION=mom6)
-ifdef VERSION
-  MOM=$(VERSION)
-endif
+UTILINCS        = -I$(NEMSMOMDIR)/lib_FMS -I$(NEMSMOMDIR)/lib_ocean -I. -g -O0  -traceback
+MODEL           = sis2
 
 .SUFFIXES: .F90
 
@@ -39,19 +33,18 @@ $(LIBRARY): $(MODULES)
 
 install: $(LIBRARY)
 	rm -f $(VERSION).mk.install
-	@echo "# ESMF self-describing build dependency makefile fragment" > $(MOM).mk.install
-	@echo "# src location Zeus: $pwd" >> $(MOM).mk.install
-	@echo  >> $(MOM).mk.install
-	@echo "ESMF_DEP_FRONT     = sis2_cap_mod" >> $(MOM).mk.install
-	@echo "ESMF_DEP_INCPATH   = $(INSTALLDIR)" >> $(MOM).mk.install
-	@echo "ESMF_DEP_CMPL_OBJS = " >> $(MOM).mk.install
-	@echo "ESMF_DEP_LINK_OBJS = $(INSTALLDIR)/libsis2_cap.a $(INSTALLDIR)/libSIS2.a $(INSTALLDIR)/libMOM6.a $(INSTALLDIR)/libFMS.a" >> $(MOM).mk.install
+	@echo "# ESMF self-describing build dependency makefile fragment" > $(MODEL).mk.install
+	@echo "# src location Zeus: $pwd" >> $(MODEL).mk.install
+	@echo  >> $(MODEL).mk.install
+	@echo "ESMF_DEP_FRONT     = sis2_cap_mod" >> $(MODEL).mk.install
+	@echo "ESMF_DEP_INCPATH   = $(INSTALLDIR)" >> $(MODEL).mk.install
+	@echo "ESMF_DEP_CMPL_OBJS = " >> $(MODEL).mk.install
+	@echo "ESMF_DEP_LINK_OBJS = $(INSTALLDIR)/libsis2_cap.a $(INSTALLDIR)/lib_ocean.a $(INSTALLDIR)/lib_FMS.a" >> $(MODEL).mk.install
 	mkdir -p $(INSTALLDIR)
-	cp -f $(NEMSMOMDIR)/SIS2/libSIS2.a $(INSTALLDIR)
-	cp -f $(NEMSMOMDIR)/MOM6/libMOM6.a $(INSTALLDIR)
-	cp -f $(NEMSMOMDIR)/FMS/libFMS.a $(INSTALLDIR)
+	cp -f $(NEMSMOMDIR)/lib_ocean/lib_ocean.a $(INSTALLDIR)
+	cp -f $(NEMSMOMDIR)/lib_FMS/lib_FMS.a $(INSTALLDIR)
 	cp -f libsis2_cap.a sis2_cap_mod.mod $(INSTALLDIR)
-	cp -f $(MOM).mk.install $(INSTALLDIR)/$(MOM).mk
+	cp -f $(MODEL).mk.install $(INSTALLDIR)/$(MODEL).mk
 
 clean:
 	$(RM) -f $(LIBRARY) *.f90 *.o *.mod *.lst depend
